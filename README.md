@@ -1,6 +1,6 @@
 # PowerControl Fork
 
-Powercontrol fork of v2.0.8 with fan controls only
+Powercontrol fork of v2.4.9 with fan controls only
 
 # Quick Install
 
@@ -10,4 +10,8 @@ curl -L https://github.com/aarron-lee/PowerControl/raw/main/install.sh | sh
 
 # Disclaimer
 
-forked for my own personal use, I will not provide any support for this fork
+forked for my own personal use
+
+# Attribution
+
+Major thanks to the PowerControl devs for creating such an awesome plugin
