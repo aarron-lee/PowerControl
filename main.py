@@ -3,20 +3,13 @@ import decky_plugin
 from settings import SettingsManager
 
 # 获取插件路径 加载backend中各个py文件
-try:
-    from helpers import get_homebrew_path
 
-    HOMEBREW_PATH = get_homebrew_path()
-    sys.path.append("{}/plugins/PowerControl/backend".format(HOMEBREW_PATH))
-    from config import logging, CONFIG_KEY
-    from gpu import gpuManager
-    from cpu import cpuManager
-    from fan import fanManager
-    from sysInfo import sysInfoManager
-    import update
-
-except Exception as e:
-    logging.error(e)
+HOMEBREW_PATH = f'{decky_plugin.DECKY_USER_HOME}/homebrew'   
+from config import logging, CONFIG_KEY
+from cpu import cpuManager
+from fan import fanManager
+from sysInfo import sysInfoManager
+import update
 
 
 class Plugin:
@@ -34,7 +27,6 @@ class Plugin:
         return True
 
     async def _unload(self):
-        gpuManager.unload()
         logging.info("End PowerControl")
 
     async def get_hasRyzenadj(self):
@@ -44,41 +36,6 @@ class Plugin:
             logging.error(e)
             return False
 
-    async def get_cpuMaxNum(self):
-        try:
-            return cpuManager.get_cpuMaxNum()
-        except Exception as e:
-            logging.error(e)
-            return 0
-
-    async def get_isSupportSMT(self):
-        try:
-            return cpuManager.get_isSupportSMT()
-        except Exception as e:
-            logging.error(e)
-            return False
-
-    async def get_tdpMax(self):
-        try:
-            return cpuManager.get_tdpMax()
-        except Exception as e:
-            logging.error(e)
-            return 0
-
-    async def get_gpuFreqRange(self):
-        try:
-            return gpuManager.get_gpuFreqRange()
-        except Exception as e:
-            logging.error(e)
-            return 0
-
-    # 弃用
-    async def get_cpu_AvailableFreq(self):
-        try:
-            return cpuManager.get_cpu_AvailableFreq()
-        except Exception as e:
-            logging.error(e)
-            return []
 
     async def get_language(self):
         try:
@@ -136,79 +93,9 @@ class Plugin:
             logging.error(e)
             return False
 
-    async def set_gpuAuto(self, value: bool):
-        try:
-            return gpuManager.set_gpuAuto(value)
-        except Exception as e:
-            logging.error(e)
-            return False
-
-    async def set_gpuAutoFreqRange(self, min: int, max: int):
-        try:
-            return gpuManager.set_gpuAutoFreqRange(min, max)
-        except Exception as e:
-            logging.error(e)
-            return False
-
-    async def set_gpuFreq(self, value: int):
-        try:
-            return gpuManager.set_gpuFreqFix(value)
-        except Exception as e:
-            logging.error(e)
-            return False
-
-    async def set_gpuFreqRange(self, value: int, value2: int):
-        try:
-            return gpuManager.set_gpuFreqRange(value, value2)
-        except Exception as e:
-            logging.error(e)
-            return False
-
-    async def set_cpuTDP(self, value: int):
-        try:
-            return cpuManager.set_cpuTDP(value)
-        except Exception as e:
-            logging.error(e)
-            return False
-
-    async def set_cpuOnline(self, value: int):
-        try:
-            return cpuManager.set_cpuOnline(value)
-        except Exception as e:
-            logging.error(e)
-            return False
-
-    async def set_smt(self, value: bool):
-        try:
-            return cpuManager.set_smt(value)
-        except Exception as e:
-            logging.error(e)
-            return False
-
-    async def set_cpuBoost(self, value: bool):
-        try:
-            return cpuManager.set_cpuBoost(value)
-        except Exception as e:
-            logging.error(e)
-            return False
-
-    async def set_cpuFreq(self, value: int):
-        try:
-            return cpuManager.set_cpuFreq(value)
-        except Exception as e:
-            logging.error(e)
-            return False
-
     async def receive_suspendEvent(self):
         try:
             return True
-        except Exception as e:
-            logging.error(e)
-            return False
-
-    async def fix_gpuFreqSlider(self):
-        try:
-            return gpuManager.fix_gpuFreqSlider()
         except Exception as e:
             logging.error(e)
             return False

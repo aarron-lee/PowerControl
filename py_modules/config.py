@@ -1,7 +1,6 @@
 import logging
 import glob
 import decky_plugin
-from helpers import get_homebrew_path
 
 #日志配置
 LOG_LOCATION = "/tmp/PowerControl_py.log"
