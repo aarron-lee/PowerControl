@@ -22,33 +22,47 @@ import {
   staticClasses,
   SteamSpinner,
 } from "decky-frontend-lib";
-import { VFC} from "react";
+import { VFC } from "react";
 import { FaSuperpowers } from "react-icons/fa";
-import { PluginManager} from "./util";
-import { SettingsComponent,FANComponent} from "./components";
+import { PluginManager } from "./util";
+import {
+  FANComponent,
+  MoreComponent,
+  QuickAccessTitleView,
+} from "./components";
+
 const Content: VFC<{}> = ({}) => {
   return (
-      <div>
-        {PluginManager.isIniting()&&<PanelSectionRow>
-          <SteamSpinner/>
-        </PanelSectionRow>}
-        {!PluginManager.isIniting()&&<div>
-          <SettingsComponent/>
+    <div>
+      {PluginManager.isIniting() && (
+        <PanelSectionRow>
+          <SteamSpinner />
+        </PanelSectionRow>
+      )}
+      {!PluginManager.isIniting() && (
+        <div>
           <FANComponent />
-        </div>}
-      </div>
-    );
+          <MoreComponent />
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default definePlugin((serverAPI: ServerAPI) => {
-  PluginManager.register(serverAPI);
+  try {
+    PluginManager.register(serverAPI);
+  } catch (e) {
+    console.log("Error while registering plugin", e);
+  }
 
   return {
     title: <div className={staticClasses.Title}>PowerControl</div>,
-    content: <Content/>,
+    titleView: <QuickAccessTitleView title={"PowerControl"} />,
+    content: <Content />,
     icon: <FaSuperpowers />,
     onDismount() {
-      PluginManager.unregister();
-    }
+      PluginManager?.unregister();
+    },
   };
 });

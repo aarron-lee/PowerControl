@@ -1,6 +1,6 @@
 {
   "name": "PowerControl",
-  "version": "2.0.8",
+  "version": "2.4.9",
   "description": "PowerControl plugin.",
   "scripts": {
     "build": "shx rm -rf dist && rollup -c",
@@ -30,9 +30,11 @@
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-replace": "^4.0.0",
     "@rollup/plugin-typescript": "^8.3.3",
+    "@types/markdown-it": "^13.0.7",
     "@types/react": "16.14.0",
     "@types/webpack": "^5.28.0",
-    "decky-frontend-lib": "^3.24.5",
+    "decky-frontend-lib": "^3.25.0",
+    "markdown-it": "^14.0.0",
     "rollup": "^2.77.1",
     "rollup-plugin-import-assets": "^1.1.1",
     "shx": "^0.3.4",
@@ -50,5 +52,6 @@
         "react-dom"
       ]
     }
-  }
+  },
+  "packageManager": "pnpm@8.15.4+sha1.c85a4305534f76d461407b59277b954bac97b5c4"
 }

@@ -1,0 +1,79 @@
+[2024-03-09 14:50:50,476 | main.py:20:<module>] INFO: PowerControl main.py
+[2024-03-09 14:50:59,694 | main.py:126:get_fanMAXRPM] INFO: getFanMAXRPM 4968
+[2024-03-09 14:50:59,716 | main.py:135:get_fanIsAdapted] INFO: get_fanIsAdapted True
+[2024-03-09 14:50:59,736 | sysInfo.py:114:get_language] INFO: get_language sudo: error in /etc/sudo.conf, line 0 while loading plugin "sudoers_policy"
+sudo: unable to load /usr/libexec/sudo/sudoers.so: /lib64/libldap.so.2: undefined symbol: EVP_md2, version OPENSSL_3.0.0
+sudo: fatal error, unable to load plugins path=/home/aarron/.steam/registry.vdf
+[2024-03-09 14:50:59,755 | main.py:144:set_fanAuto] INFO: set_fanAuto True False
+[2024-03-09 14:50:59,756 | main.py:153:set_fanPercent] INFO: set_fanPercent True 0
+[2024-03-09 14:51:00,749 | main.py:144:set_fanAuto] INFO: set_fanAuto True False
+[2024-03-09 14:51:00,753 | main.py:86:get_fanRPM] INFO: get_fanRPM 1939
+[2024-03-09 14:51:00,762 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 57000
+[2024-03-09 14:51:00,768 | main.py:153:set_fanPercent] INFO: set_fanPercent True 33.18
+[2024-03-09 14:51:01,749 | main.py:86:get_fanRPM] INFO: get_fanRPM 1178
+[2024-03-09 14:51:01,754 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 57000
+[2024-03-09 14:51:01,759 | main.py:153:set_fanPercent] INFO: set_fanPercent True 33.18
+[2024-03-09 14:51:02,749 | main.py:86:get_fanRPM] INFO: get_fanRPM 1893
+[2024-03-09 14:51:02,755 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:51:02,762 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34
+[2024-03-09 14:51:03,749 | main.py:86:get_fanRPM] INFO: get_fanRPM 1958
+[2024-03-09 14:51:03,755 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 57000
+[2024-03-09 14:51:03,760 | main.py:153:set_fanPercent] INFO: set_fanPercent True 33.18
+[2024-03-09 14:51:04,750 | main.py:86:get_fanRPM] INFO: get_fanRPM 1953
+[2024-03-09 14:51:04,757 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 57000
+[2024-03-09 14:51:04,766 | main.py:153:set_fanPercent] INFO: set_fanPercent True 33.18
+[2024-03-09 14:51:05,751 | main.py:86:get_fanRPM] INFO: get_fanRPM 1939
+[2024-03-09 14:51:05,766 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:51:05,777 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34
+[2024-03-09 14:51:06,759 | main.py:86:get_fanRPM] INFO: get_fanRPM 1960
+[2024-03-09 14:51:06,781 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:51:06,787 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34
+[2024-03-09 14:51:07,750 | main.py:86:get_fanRPM] INFO: get_fanRPM 1972
+[2024-03-09 14:51:07,757 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:51:07,764 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34
+[2024-03-09 14:51:08,750 | main.py:86:get_fanRPM] INFO: get_fanRPM 1976
+[2024-03-09 14:51:08,758 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:51:08,764 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34
+[2024-03-09 14:51:09,749 | main.py:86:get_fanRPM] INFO: get_fanRPM 1980
+[2024-03-09 14:51:09,756 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 57000
+[2024-03-09 14:51:09,763 | main.py:153:set_fanPercent] INFO: set_fanPercent True 33.18
+[2024-03-09 14:51:10,749 | main.py:86:get_fanRPM] INFO: get_fanRPM 1947
+[2024-03-09 14:51:10,757 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 57000
+[2024-03-09 14:51:10,767 | main.py:153:set_fanPercent] INFO: set_fanPercent True 33.18
+[2024-03-09 14:51:11,749 | main.py:86:get_fanRPM] INFO: get_fanRPM 1937
+[2024-03-09 14:51:11,760 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:51:11,767 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34
+
+
+
+
+
+70%
+
+[2024-03-09 14:53:18,756 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:53:18,761 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34
+[2024-03-09 14:53:19,749 | main.py:86:get_fanRPM] INFO: get_fanRPM 1976
+[2024-03-09 14:53:19,755 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:53:19,759 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34
+[2024-03-09 14:53:20,750 | main.py:86:get_fanRPM] INFO: get_fanRPM 1972
+[2024-03-09 14:53:20,758 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 59000
+[2024-03-09 14:53:20,766 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34.96
+[2024-03-09 14:53:21,750 | main.py:86:get_fanRPM] INFO: get_fanRPM 2018
+[2024-03-09 14:53:21,756 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:53:21,813 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34
+[2024-03-09 14:53:22,749 | main.py:86:get_fanRPM] INFO: get_fanRPM 1981
+[2024-03-09 14:53:22,756 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:53:22,762 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34
+[2024-03-09 14:53:23,749 | main.py:86:get_fanRPM] INFO: get_fanRPM 1976
+[2024-03-09 14:53:23,752 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:53:23,755 | main.py:153:set_fanPercent] INFO: set_fanPercent True 34
+[2024-03-09 14:53:24,753 | main.py:144:set_fanAuto] INFO: set_fanAuto True False
+[2024-03-09 14:53:24,754 | main.py:86:get_fanRPM] INFO: get_fanRPM 1974
+[2024-03-09 14:53:24,758 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:53:24,761 | main.py:153:set_fanPercent] INFO: set_fanPercent True 70
+[2024-03-09 14:53:25,749 | main.py:86:get_fanRPM] INFO: get_fanRPM 3642
+[2024-03-09 14:53:25,753 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:53:25,757 | main.py:153:set_fanPercent] INFO: set_fanPercent True 70
+[2024-03-09 14:53:26,748 | main.py:86:get_fanRPM] INFO: get_fanRPM 3698
+[2024-03-09 14:53:26,755 | main.py:104:get_fanTemp] INFO: get_fanTemp gpuTemp 58000
+[2024-03-09 14:53:26,761 | main.py:153:set_fanPercent] INFO: set_fanPercent True 70

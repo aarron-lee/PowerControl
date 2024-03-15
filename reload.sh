@@ -1,5 +1,6 @@
-cd $HOME/Development/PowerControl
-pnpm build
-sudo rm -rf ~/homebrew/plugins/PowerControl/
-sudo cp -rf $HOME/Development/PowerControl/ ~/homebrew/plugins/PowerControl/
+ #!/bin/bash
+
+pnpm run build
+sudo rm -r /home/$USER/homebrew/plugins/PowerControl/
+sudo cp -r /home/$USER/Development/PowerControl/ ~/homebrew/plugins/
 sudo systemctl restart plugin_loader.service
