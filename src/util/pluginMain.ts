@@ -3,7 +3,6 @@ import {
   APPLYTYPE,
   ComponentName,
   FANMODE,
-  Patch,
   PluginState,
   UpdateType,
 } from "./enum";
@@ -35,7 +34,7 @@ export class RunningApps {
 
   static register() {
     if (this.intervalId == undefined)
-      this.intervalId = setInterval(() => this.pollActive(), 100);
+      this.intervalId = setInterval(() => this.pollActive(), 10000);
   }
 
   static unregister() {
@@ -299,16 +298,8 @@ export class PluginManager {
     PluginManager.state = PluginState.INIT;
     await Backend.init(serverAPI);
     await localizationManager.init(serverAPI);
-    RunningApps.register();
     FanControl.register();
-    RunningApps.listenActiveChange((newAppId, oldAppId) => {
-      console.log(`newAppId=${newAppId} oldAppId=${oldAppId}`);
-      if (Settings.ensureEnable()) {
-        Backend.applySettings(APPLYTYPE.SET_ALL);
-      }
-    });
     await Settings.loadSettings();
-    ACStateManager.register();
     try {
       Backend.applySettings(APPLYTYPE.SET_ALL);
     } catch (e) {
