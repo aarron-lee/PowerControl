@@ -6,6 +6,8 @@ if [ "$EUID" -eq 0 ]
   exit
 fi
 
+VERSION=${VERSION_TAG:-"LATEST"}
+
 
 echo "removing previous install if it exists"
 
@@ -14,8 +16,16 @@ cd $HOME
 sudo rm -rf $HOME/homebrew/plugins/PowerControl
 
 echo "installing PowerControl plugin for TDP control"
+
+FINAL_URL='https://api.github.com/repos/aarron-lee/PowerControl/releases/latest'
+if [ $VERSION != "LATEST" ] ; then
+  FINAL_URL="https://api.github.com/repos/aarron-lee/PowerControl/releases/tags/${VERSION}"
+fi
+
+echo $FINAL_URL
+
 # download + install plugin
-curl -L $(curl -s https://api.github.com/repos/aarron-lee/PowerControl/releases/latest | grep "browser_download_url" | cut -d '"' -f 4) -o $HOME/PowerControl.tar.gz
+curl -L $(curl -s "${FINAL_URL}" | grep "browser_download_url" | cut -d '"' -f 4) -o $HOME/PowerControl.tar.gz
 sudo tar -xzf PowerControl.tar.gz -C $HOME/homebrew/plugins
 
 # install complete, remove build dir
