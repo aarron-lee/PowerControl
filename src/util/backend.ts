@@ -1,224 +1,353 @@
-import {ServerAPI } from "decky-frontend-lib";
-import { APPLYTYPE, FANMODE, GPUMODE } from "./enum";
-import { FanControl } from "./pluginMain";
-import { Settings } from "./settings";
+import { APPLYTYPE, FANMODE, GPUMODE, Patch } from "./enum";
+import { FanControl, PluginManager } from "./pluginMain";
+import { Settings, SettingsData } from "./settings";
+import { DEFAULT_TDP_MAX, DEFAULT_TDP_MIN, QAMPatch, SteamUtils, SystemInfo } from ".";
+import { JsonSerializer } from "typescript-json-serializer";
+import { call } from "@decky/api";
 
+const serializer = new JsonSerializer();
 
+const minSteamVersion = 1714854927;
 
-export class BackendData{
-  private serverAPI:ServerAPI | undefined;
+export class BackendData {
   private cpuMaxNum = 0;
   private has_cpuMaxNum = false;
+  private isSupportSMT = false;
+  private has_isSupportSMT = false;
   private tdpMax = 0;
-  private has_tdpMax= false;
-  private has_ryzenadj = false;
+  private has_tdpMax = false;
   private gpuMax = 0;
   private has_gpuMax = false;
   private gpuMin = 0;
   private has_gpuMin = false;
-  private fanMaxRPM = 0;
-  private has_fanMaxRPM = false;
-  private fanIsAdapted = false;
-  public async init(serverAPI:ServerAPI){
-    this.serverAPI=serverAPI;
-    await serverAPI!.callPluginMethod<{},number>("get_cpuMaxNum",{}).then(res=>{
-      if (res.success){
-        console.info("cpuMaxNum = " + res.result);
-        this.cpuMaxNum = res.result;
+  private fanConfigs: any[] = [];
+  private has_fanConfigs = false;
+  private current_version = "";
+  private latest_version = "";
+  private supportCPUMaxPct = false;
+  private systemInfo: SystemInfo | undefined;
+  public async init() {
+    await call<[], number>("get_cpuMaxNum")
+      .then((res) => {
+        // console.info("cpuMaxNum = " + res.result);
+        this.cpuMaxNum = res;
         this.has_cpuMaxNum = true;
-      }
-    })
-    await serverAPI!.callPluginMethod<{},number>("get_tdpMax",{}).then(res=>{
-      if (res.success){
-        console.info("tdpMax = " + res.result);
-        this.tdpMax = res.result;
+      });
+    await call<[], number>("get_tdpMax")
+      .then((res) => {
+        this.tdpMax = res;
         this.has_tdpMax = true;
-      }
-    })
-    await serverAPI!.callPluginMethod<{},boolean>("get_hasRyzenadj",{}).then(res=>{
-      if (res.success){
-        console.info("has_ryzenadj = " + res.result);
-        this.has_ryzenadj= res.result;
-      }
-    })
-    await serverAPI!.callPluginMethod<{},number>("get_gpuFreqMax",{}).then(res=>{
-      if (res.success){
-        console.info("gpuMax = " + res.result);
-        this.gpuMax = res.result;
-        this.has_gpuMax = true;
-      }
-    })
-    await serverAPI!.callPluginMethod<{},number>("get_gpuFreqMin",{}).then(res=>{
-      if (res.success){
-        console.info("gpuMin = " + res.result);
-        this.gpuMin = res.result;
+      });
+    await call<[], number[]>("get_gpuFreqRange")
+      .then((res) => {
+        this.gpuMin = res[0];
+        this.gpuMax = res[1];
         this.has_gpuMin = true;
+        this.has_gpuMax = true;
+      });
+    await call<[], []>(
+      "get_fanConfigList"
+    ).then((res) => {
+      this.fanConfigs = res;
+      this.has_fanConfigs = res.length > 0;
+    });
+
+    await call<[], boolean>(
+      "get_isSupportSMT"
+    ).then((res) => {
+      this.isSupportSMT = res;
+      this.has_isSupportSMT = true;
+    });
+
+    Backend.getMaxPerfPct().then((value) => {
+      this.supportCPUMaxPct = value > 0;
+    });
+
+    await call<[], string>("get_version").then(
+      (res) => {
+        this.current_version = res;
       }
-    })
-    await this.serverAPI!.callPluginMethod<{},number>("get_fanMAXRPM",{}).then(res=>{
-      if (res.success){
-        this.fanMaxRPM=res.result;
-        this.has_fanMaxRPM=true;
-      }else{
-        this.fanMaxRPM=1;
-      }
-    })
-    await this.serverAPI!.callPluginMethod<{},boolean>("get_fanIsAdapted",{}).then(res=>{
-      if (res.success){
-        this.fanIsAdapted=res.result;
-      }else{
-        this.fanIsAdapted=false;
-      }
-    })
+    );
+
+    SteamUtils.getSystemInfo().then((systemInfo) => {
+      this.systemInfo = systemInfo;
+    });
   }
-  public getCpuMaxNum(){
+
+  public getForceShowTDP() {
+    // 检查 Steam 客户端版本，如果版本大于等于 minSteamVersion。不显示强制 TDP 开关。并默认显示 TDP 控制组件
+    return this.systemInfo!.nSteamVersion >= minSteamVersion
+  }
+
+  public getCpuMaxNum() {
     return this.cpuMaxNum;
   }
 
-  public HasCpuMaxNum(){
+  public HasCpuMaxNum() {
     return this.has_cpuMaxNum;
   }
 
-  public getTDPMax(){
+  public getSupportSMT() {
+    return this.isSupportSMT;
+  }
+
+  public HasSupportSMT() {
+    return this.has_isSupportSMT;
+  }
+
+  public getTDPMax() {
     return this.tdpMax;
   }
 
-  public getGPUFreqMax(){
+  public getGPUFreqMax() {
     return this.gpuMax;
   }
 
-  public HasGPUFreqMax(){
+  public HasGPUFreqMax() {
     return this.has_gpuMax;
   }
 
-  public getGPUFreqMin(){
+  public getGPUFreqMin() {
     return this.gpuMin;
   }
 
-  public HasGPUFreqMin(){
+  public HasGPUFreqMin() {
     return this.has_gpuMin;
   }
 
-  public HasTDPMax(){
+  public HasTDPMax() {
     return this.has_tdpMax;
   }
 
-  public HasRyzenadj(){
-    return this.has_ryzenadj;
+  public getFanMAXPRM(index: number) {
+    if (this.has_fanConfigs) {
+      return this.fanConfigs?.[index]?.fan_max_rpm ?? 0;
+    }
+    return 0;
   }
 
-  public getFanMAXPRM(){
-    return this.fanMaxRPM;
+  public getFanCount() {
+    if (this.has_fanConfigs) {
+      return this.fanConfigs?.length ?? 0;
+    }
+    return 0;
   }
 
-  public HasFanMAXPRM(){
-    return this.has_fanMaxRPM;
+  public getFanName(index: number) {
+    if (this.has_fanConfigs) {
+      return this.fanConfigs?.[index]?.fan_name ?? "Fan";
+    }
+    return "Fan";
   }
 
-  public getFanIsAdapt(){
-    return this.fanIsAdapted;
+  public getFanConfigs() {
+    if (this.has_fanConfigs) {
+      return this.fanConfigs;
+    }
+    return [];
   }
 
-  public async getFanRPM(){
-    var fanPRM:number;
-    await this.serverAPI!.callPluginMethod<{},number>("get_fanRPM",{}).then(res=>{
-      if (res.success){
-        fanPRM=res.result;
-      }else{
-        fanPRM=0;
-      }
-    })
-    return fanPRM!!;
+  public getFanHwmonMode(index: number) {
+    if (this.has_fanConfigs) {
+      return this.fanConfigs?.[index]?.fan_hwmon_mode ?? 0;
+    }
+    return 0;
   }
 
-  public async getFanTemp(){
-    var fanTemp:number;
-    await this.serverAPI!.callPluginMethod<{},number>("get_fanTemp",{}).then(res=>{
-      if (res.success){
-        fanTemp=res.result/1000;
-      }else{
-        fanTemp=-1;
-      }
-    })
-    return fanTemp!!;
+  public getCurrentVersion() {
+    return this.current_version;
   }
 
-  public async getFanIsAuto(){
-    var fanIsAuto:boolean;
-    await this.serverAPI!.callPluginMethod<{},boolean>("get_fanIsAuto",{}).then(res=>{
-      if (res.success){
-        fanIsAuto=res.result;
-      }else{
-        fanIsAuto=false;
-      }
-    })
-    return fanIsAuto!!;
+  public getLatestVersion() {
+    return this.latest_version;
+  }
+
+  public getSupportCPUMaxPct() {
+    return this.supportCPUMaxPct;
+  }
+
+  public async getFanRPM(index: number) {
+    var fanPRM: number = 0;
+    await call<[index: number], number>("get_fanRPM", index).then((res) => {
+      fanPRM = res;
+    }).catch((error) => {
+      console.error("get_fanRPM error", error);
+    });
+    return fanPRM;
+  }
+
+  public async getFanTemp(index: number) {
+    var fanTemp: number = -1;
+    await call<[index: number], number>("get_fanTemp", index).then((res) => {
+      fanTemp = res / 1000;
+    }).catch((error) => {
+      console.error("get_fanTemp error", error);
+    });
+    return fanTemp;
+  }
+
+  public async getFanIsAuto(index: number) {
+    var fanIsAuto: boolean = false;
+    await call<[index: number], boolean>("get_fanIsAuto", index).then((res) => {
+      fanIsAuto = res;
+    }).catch((error) => {
+      console.error("get_fanIsAuto error", error);
+    });
+    return fanIsAuto;
   }
 }
 
-
 export class Backend {
-  private static serverAPI: ServerAPI;
   public static data: BackendData;
-  public static async init(serverAPI: ServerAPI) {
-    this.serverAPI = serverAPI;
+  public static async init() {
     this.data = new BackendData();
-    await this.data.init(serverAPI);
+    await this.data.init();
   }
 
   private static applySmt(smt: boolean) {
-    console.log("Applying smt " + smt.toString());
-    this.serverAPI!.callPluginMethod("set_smt", { "value": smt });
+    // console.log("Applying smt " + smt.toString());
+    // this.serverAPI!.callPluginMethod("set_smt", { value: smt });
+    call("set_smt", smt);
   }
 
   private static applyCpuNum(cpuNum: number) {
-    console.log("Applying cpuNum " + cpuNum.toString());
-    this.serverAPI!.callPluginMethod("set_cpuOnline", { "value": cpuNum });
+    // console.log("Applying cpuNum " + cpuNum.toString());
+    // this.serverAPI!.callPluginMethod("set_cpuOnline", { value: cpuNum });
+    call("set_cpuOnline", cpuNum);
   }
 
   private static applyCpuBoost(cpuBoost: boolean) {
-    console.log("Applying cpuBoost " + cpuBoost.toString());
-    this.serverAPI!.callPluginMethod("set_cpuBoost", { "value": cpuBoost });
+    // console.log("Applying cpuBoost " + cpuBoost.toString());
+    // this.serverAPI!.callPluginMethod("set_cpuBoost", { value: cpuBoost });
+    call("set_cpuBoost", cpuBoost);
   }
 
-  private static applyTDP(tdp: number) {
+  public static applyTDP = (tdp: number) => {
     console.log("Applying tdp " + tdp.toString());
-    this.serverAPI!.callPluginMethod("set_cpuTDP", {"value":tdp});
-  }
-  
-  private static applyGPUFreq(freq: number){
-    console.log("Applying gpuFreq " + freq.toString());
-    this.serverAPI!.callPluginMethod("set_gpuFreq", {"value":freq});
+    // this.serverAPI!.callPluginMethod("set_cpuTDP", { value: tdp });
+    call("set_cpuTDP", tdp);
+  };
+
+  public static applyGPUFreq(freq: number) {
+    // console.log("Applying gpuFreq " + freq.toString());
+    // this.serverAPI!.callPluginMethod("set_gpuFreq", { value: freq });
+    call("set_gpuFreq", freq);
   }
 
-  private static applyGPUFreqRange(freqMin: number, freqMax: number){
-    console.log("Applying gpuFreqRange  " + freqMin.toString() + "   "+ freqMax.toString());
-    this.serverAPI!.callPluginMethod("set_gpuFreqRange", {"value":freqMin, "value2":freqMax});
+  private static applyGPUFreqRange(freqMin: number, freqMax: number) {
+    // console.log(
+    //   "Applying gpuFreqRange  " +
+    //     freqMin.toString() +
+    //     "   " +
+    //     freqMax.toString()
+    // );
+    // this.serverAPI!.callPluginMethod("set_gpuFreqRange", {
+    //   value: freqMin,
+    //   value2: freqMax,
+    // });
+    call<[value: number, value2: number], void>("set_gpuFreqRange", freqMin, freqMax);
   }
 
-  private static applyGPUAuto(auto: boolean){
-    console.log("Applying gpuAuto" + auto.toString());
-    this.serverAPI!.callPluginMethod("set_gpuAuto", {"value":auto});
+  private static applyGPUAuto(auto: boolean) {
+    // console.log("Applying gpuAuto" + auto.toString());
+    // this.serverAPI!.callPluginMethod("set_gpuAuto", { value: auto });
+    call("set_gpuAuto", auto);
   }
 
-  private static applyGPUAutoMax(maxAutoFreq:number){
-    console.log("Applying gpuAuto" + maxAutoFreq.toString());
-    this.serverAPI!.callPluginMethod("set_gpuAutoMaxFreq", {"value":maxAutoFreq});
+  private static applyGPUAutoRange(minAutoFreq: number, maxAutoFreq: number) {
+    // console.log("Applying gpuAuto" + maxAutoFreq.toString());
+    // this.serverAPI!.callPluginMethod("set_gpuAutoFreqRange", {
+    //   min: minAutoFreq,
+    //   max: maxAutoFreq,
+    // });
+    call<[min: number, max: number], void>("set_gpuAutoFreqRange", minAutoFreq, maxAutoFreq);
   }
 
-  private static applyGPUAutoMin(minAutoFreq:number){
-    console.log("Applying gpuAuto" + minAutoFreq.toString());
-    this.serverAPI!.callPluginMethod("set_gpuAutoMinFreq", {"value":minAutoFreq});
+  private static applyFanAuto(index: number, auto: boolean) {
+    // this.serverAPI!.callPluginMethod("set_fanAuto", {
+    //   index: index,
+    //   value: auto,
+    // });
+    call<[index: number, value: boolean], void>("set_fanAuto", index, auto);
   }
-  private static applyFanAuto(auto:boolean){
-    this.serverAPI!.callPluginMethod("set_fanAuto", {"value":auto});
+
+  private static applyFanPercent(index: number, percent: number) {
+    // this.serverAPI!.callPluginMethod("set_fanPercent", {
+    //   index: index,
+    //   value: percent,
+    // });
+    call<[index: number, value: number], void>("set_fanPercent", index, percent);
   }
-  private static applyFanPercent(percent:number){
-    this.serverAPI!.callPluginMethod("set_fanPercent", {"value":percent});
-  }
-  public static throwSuspendEvt(){
+  public static throwSuspendEvt() {
     console.log("throwSuspendEvt");
-    this.serverAPI!.callPluginMethod("receive_suspendEvent", {});
+    // this.serverAPI!.callPluginMethod("receive_suspendEvent", {});
+    call("receive_suspendEvent");
+  }
+
+  public static async getLatestVersion(): Promise<string> {
+    // return (await this.serverAPI!.callPluginMethod("get_latest_version", {}))
+    //   .result as string;
+    return (await call("get_latest_version")) as string;
+  }
+
+  // updateLatest
+  public static async updateLatest() {
+    // return await this.serverAPI!.callPluginMethod("update_latest", {});
+    return await call("update_latest");
+  }
+
+  public static async applyGPUSliderFix() {
+    console.log("applyGPUSliderFix");
+    // await this.serverAPI!.callPluginMethod("fix_gpuFreqSlider", {});
+    return await call("fix_gpuFreqSlider");
+  }
+
+  // get_ryzenadj_info
+  public static async getRyzenadjInfo(): Promise<string> {
+    // return (await this.serverAPI!.callPluginMethod("get_ryzenadj_info", {}))
+    //   .result as string;
+    return (await call("get_ryzenadj_info")) as string;
+  }
+
+  // set_settings
+  public static async setSettings(settingsData: SettingsData) {
+    const obj = serializer.serializeObject(settingsData);
+    // await this.serverAPI!.callPluginMethod("set_settings", {
+    //   settings: obj,
+    // });
+    await call("set_settings", obj);
+  }
+
+  // get_settings
+  public static async getSettings(): Promise<SettingsData> {
+    // const res = await this.serverAPI!.callPluginMethod("get_settings", {});
+    // if (!res.success) {
+    //   return new SettingsData();
+    // }
+    // return (
+    //   serializer.deserializeObject(res.result, SettingsData) ??
+    //   new SettingsData()
+    // );
+    try {
+      const res = await call("get_settings") as string;
+      return serializer.deserializeObject(res, SettingsData) ?? new SettingsData();
+    } catch (error) {
+      console.error("getSettings error", error);
+      return new SettingsData();
+    }
+  }
+
+  // get_max_perf_pct
+  public static async getMaxPerfPct(): Promise<number> {
+    // return (await this.serverAPI!.callPluginMethod("get_max_perf_pct", {}))
+    //   .result as number;
+    return (await call("get_max_perf_pct")) as number;
+  }
+
+  // set_max_perf_pct
+  public static async setMaxPerfPct(value: number) {
+    // await this.serverAPI!.callPluginMethod("set_max_perf_pct", { value: value });
+    return await call("set_max_perf_pct", value);
   }
 
   public static applySettings = (applyTarget: string) => {
@@ -226,29 +355,106 @@ export class Backend {
       Backend.resetSettings();
       return;
     }
-    if (applyTarget == APPLYTYPE.SET_ALL || applyTarget == APPLYTYPE.SET_CPUCORE) {
+
+    // 把 OverWrite 同步到系统 QAM 的使用游戏配置文件开关
+    if (applyTarget == APPLYTYPE.SET_ALL) {
+      // console.log(`PtoQ.0 >>>>`);
+      // console.log(`PtoQ.1 >>>> 同步 OverWrite 到 QAM ${Settings.appOverWrite()}`)
+      QAMPatch.togglePreferAppProfile(Settings.appOverWrite());
+    }
+
+    if (
+      applyTarget == APPLYTYPE.SET_ALL ||
+      applyTarget == APPLYTYPE.SET_CPUCORE
+    ) {
       const smt = Settings.appSmt();
       const cpuNum = Settings.appCpuNum();
       Backend.applySmt(smt);
       Backend.applyCpuNum(cpuNum);
     }
-    if (applyTarget == APPLYTYPE.SET_ALL || applyTarget == APPLYTYPE.SET_CPUBOOST) {
+    if (
+      applyTarget == APPLYTYPE.SET_ALL ||
+      applyTarget == APPLYTYPE.SET_CPUBOOST
+    ) {
       const cpuBoost = Settings.appCpuboost();
       Backend.applyCpuBoost(cpuBoost);
     }
     if (applyTarget == APPLYTYPE.SET_ALL || applyTarget == APPLYTYPE.SET_TDP) {
+      // 自定义 QAM TDP范围
+      const enableCustomTDPRange = Settings.appEnableCustomTDPRange();
+      const customTDPRangeMax = Settings.appCustomTDPRangeMax();
+      const customTDPRangeMin = Settings.appCustomTDPRangeMin();
+
+      // patch 成功才设置 QAM 的 TDP 范围
+      if (PluginManager.isPatchSuccess(Patch.TDPPatch)) {
+        if (enableCustomTDPRange) {
+          QAMPatch.setTDPRange(customTDPRangeMin, customTDPRangeMax);
+        } else {
+          QAMPatch.setTDPRange(
+            DEFAULT_TDP_MIN,
+            Backend.data.getTDPMax() !== 0
+              ? Backend.data.getTDPMax()
+              : DEFAULT_TDP_MAX
+          );
+        }
+      }
+
+      // 应用 TDP
       const tdp = Settings.appTDP();
       const tdpEnable = Settings.appTDPEnable();
-      if (tdpEnable) {
-        Backend.applyTDP(tdp);
+      const _tdp = enableCustomTDPRange
+        ? Math.min(customTDPRangeMax, Math.max(customTDPRangeMin, tdp))
+        : tdp;
+
+      if (!PluginManager.isPatchSuccess(Patch.TDPPatch) || Settings.appForceShowTDP()) {
+        console.log(
+          `>>>>> 插件方式更新 TDP = ${_tdp} TDPEnable = ${tdpEnable}`
+        );
+
+        if (tdpEnable) {
+          Backend.applyTDP(_tdp);
+        } else {
+          Backend.applyTDP(Backend.data.getTDPMax());
+        }
+
+        try {
+          QAMPatch.setTDPEanble(tdpEnable);
+          if (tdpEnable) {
+            QAMPatch.setTDP(_tdp);
+          }
+        } catch (error) {
+          console.error(`>>>>> 强制显示 TDP 时设置QAM失败`, error);
+        }
       }
-      else {
-        Backend.applyTDP(Backend.data.getTDPMax());
+
+      // patch 成功, 更新 QAM 中设置的值
+      if (PluginManager.isPatchSuccess(Patch.TDPPatch)) {
+        console.log(
+          `>>>>> 原生设置更新 TDP = ${_tdp} TDPEnable = ${tdpEnable}`
+        );
+        // patch 成功才更新 QAM 中设置的值
+        QAMPatch.setTDPEanble(tdpEnable);
+        QAMPatch.setTDP(_tdp);
+        if (tdpEnable) {
+          Backend.applyTDP(_tdp);
+        } else {
+          Backend.applyTDP(Backend.data.getTDPMax());
+        }
       }
     }
-    if (applyTarget == APPLYTYPE.SET_ALL || applyTarget == APPLYTYPE.SET_GPUMODE) {
+
+    if (applyTarget == APPLYTYPE.SET_ALL || applyTarget == APPLYTYPE.SET_CPU_MAX_PERF) {
+      const maxPerfPct = Settings.appCpuMaxPerfPct();
+      Backend.setMaxPerfPct(maxPerfPct);
+    }
+
+    if (
+      applyTarget == APPLYTYPE.SET_ALL ||
+      applyTarget == APPLYTYPE.SET_GPUMODE
+    ) {
       const gpuMode = Settings.appGPUMode();
       const gpuFreq = Settings.appGPUFreq();
+      const gpuSliderFix = Settings.appGPUSliderFix();
       const gpuAutoMaxFreq = Settings.appGPUAutoMaxFreq();
       const gpuAutoMinFreq = Settings.appGPUAutoMinFreq();
       const gpuRangeMaxFreq = Settings.appGPURangeMaxFreq();
@@ -259,59 +465,102 @@ export class Backend {
       } else if (gpuMode == GPUMODE.FIX) {
         Backend.applyGPUAuto(false);
         Backend.applyGPUFreq(gpuFreq);
+      } else if (gpuMode == GPUMODE.NATIVE && gpuSliderFix) {
+        console.log(`原生设置无需处理`);
       } else if (gpuMode == GPUMODE.AUTO) {
-        console.log(`开始自动优化GPU频率`)
+        console.log(`开始自动优化GPU频率`);
         Settings.setTDPEnable(false);
         Settings.setCpuboost(false);
-        Backend.applyGPUAutoMax(gpuAutoMaxFreq);
-        Backend.applyGPUAutoMin(gpuAutoMinFreq);
+        Backend.applyGPUAutoRange(gpuAutoMinFreq, gpuAutoMaxFreq);
         Backend.applyGPUAuto(true);
       } else if (gpuMode == GPUMODE.RANGE) {
         Backend.applyGPUAuto(false);
         Backend.applyGPUFreqRange(gpuRangeMinFreq, gpuRangeMaxFreq);
-      }
-      else {
-        console.log(`出现意外的GPUmode = ${gpuMode}`)
+      } else {
+        console.log(`出现意外的GPUmode = ${gpuMode}`);
         Backend.applyGPUFreq(0);
       }
     }
+
+    if (
+      applyTarget == APPLYTYPE.SET_ALL ||
+      applyTarget == APPLYTYPE.SET_GPUSLIDERFIX
+    ) {
+      const gpuSlideFix = Settings.appGPUSliderFix();
+      if (gpuSlideFix) {
+        Backend.applyGPUSliderFix();
+      }
+    }
+
+    /*
     if (applyTarget == APPLYTYPE.SET_ALL || applyTarget == APPLYTYPE.SET_FANMODE){
       if(!FanControl.fanIsEnable){
         return;
       }
-      const fanSetting = Settings.appFanSetting();
-      const fanMode = fanSetting?.fanMode;
-      if (fanMode == FANMODE.NOCONTROL) {
-          Backend.applyFanAuto(true);
-      } else if (fanMode == FANMODE.FIX) {
-        Backend.applyFanAuto(false);
-      } else if (fanMode == FANMODE.CURVE) {
-        Backend.applyFanAuto(false);
-      } else {
-          Backend.applyFanAuto(true);
-          console.log(`出现意外的FanMode = ${fanMode}`)
-      };
-    }
-    if (applyTarget == APPLYTYPE.SET_ALL || applyTarget == APPLYTYPE.SET_FANRPM){
-      if(!FanControl.fanIsEnable){
+      const fanSettings = Settings.appFanSettings();
+      fanSettings?.forEach((fanSetting,index)=>{
+        const fanMode = fanSetting?.fanMode;
+        if (fanMode == FANMODE.NOCONTROL) {
+            Backend.applyFanAuto(index,true);
+        } else if (fanMode == FANMODE.FIX) {
+          Backend.applyFanAuto(index,false);
+        } else if (fanMode == FANMODE.CURVE) {
+          Backend.applyFanAuto(index,false);
+        } else {
+            Backend.applyFanAuto(index,true);
+            console.log(`出现意外的FanMode = ${fanMode}`)
+        };
+      })
+      
+    }*/
+
+    if (
+      applyTarget == APPLYTYPE.SET_ALL ||
+      applyTarget == APPLYTYPE.SET_FANRPM
+    ) {
+      if (!FanControl.fanIsEnable) {
         return;
       }
-      const fanSetting = Settings.appFanSetting();
-      const fanMode = fanSetting?.fanMode;
-      if (fanMode == FANMODE.NOCONTROL) {
-      } else if (fanMode == FANMODE.FIX) {
-        Backend.applyFanPercent(FanControl.setPoint.fanRPMpercent!!);
-      } else if (fanMode == FANMODE.CURVE) {
-        Backend.applyFanPercent(FanControl.setPoint.fanRPMpercent!!);
-      } else {
-        console.log(`出现意外的FanMode = ${fanMode}`)
+      const fanSettings = Settings.appFanSettings();
+      for (var index = 0; index < fanSettings.length; index++) {
+        var fanSetting = Settings.appFanSettings()?.[index];
+        //没有配置时转自动
+        if (!fanSetting) {
+          Backend.applyFanAuto(index, true);
+          // console.log(`没有配置 index= ${index}`);
+          continue;
+        }
+        const fanMode = fanSetting.fanMode;
+        //写入转速后再写入控制位
+        if (fanMode == FANMODE.NOCONTROL) {
+          // console.log(`不控制 index= ${index}`);
+          Backend.applyFanAuto(index, true);
+        } else if (fanMode == FANMODE.FIX) {
+          // console.log(`直线 index= ${index}`);
+          Backend.applyFanPercent(
+            index,
+            FanControl.fanInfo[index].setPoint.fanRPMpercent!!
+          );
+          Backend.applyFanAuto(index, false);
+        } else if (fanMode == FANMODE.CURVE) {
+          // console.log(`曲线 index= ${index}`);
+          Backend.applyFanPercent(
+            index,
+            FanControl.fanInfo[index].setPoint.fanRPMpercent!!
+          );
+          Backend.applyFanAuto(index, false);
+        } else {
+          console.error(`出现意外的FanMode = ${fanMode}`);
+        }
       }
     }
   };
 
-  public static resetFanSettings = () =>{
-    Backend.applyFanAuto(true);
-  }
+  public static resetFanSettings = () => {
+    FanControl.fanInfo.forEach((_value, index) => {
+      Backend.applyFanAuto(index, true);
+    });
+  };
 
   public static resetSettings = () => {
     console.log("重置所有设置");
@@ -320,6 +569,8 @@ export class Backend {
     Backend.applyCpuBoost(true);
     Backend.applyTDP(Backend.data.getTDPMax());
     Backend.applyGPUFreq(0);
-    Backend.applyFanAuto(true);
+    FanControl.fanInfo.forEach((_value, index) => {
+      Backend.applyFanAuto(index, true);
+    });
   };
 }

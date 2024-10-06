@@ -40,9 +40,12 @@ __pycache__/
 /.yalc
 yalc.lock
 
-.vscode/settings.json
+# .vscode/settings.json
 
 # Ignore output folder
 
 backend/out
-Makefile
+backend/*.sh
+# Makefile
+
+.history

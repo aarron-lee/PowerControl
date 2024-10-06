@@ -2,24 +2,25 @@ import {
   PanelSection,
   PanelSectionRow,
   ToggleField,
-} from "decky-frontend-lib";
-import { useEffect, useState, VFC} from "react";
-import { Settings,Backend, PluginManager,ComponentName, UpdateType, GPUMODE} from "../util";
-import { localizeStrEnum,localizationManager } from "../i18n";
-import {SlowSliderField} from "./SlowSliderField"
+} from "@decky/ui";
+import { useEffect, useState, FC } from "react";
+import { Settings, Backend, PluginManager, ComponentName, UpdateType, GPUMODE, Patch } from "../util";
+import { localizeStrEnum, localizationManager } from "../i18n";
+import { SlowSliderField } from "./SlowSliderField"
+import { CustomTDPComponent } from ".";
 
-const CPUBoostComponent:VFC = () =>{
+const CPUBoostComponent: FC = () => {
   const [cpuboost, setCPUBoost] = useState<boolean>(Settings.appCpuboost());
-  const [disabled,setDisable] = useState<boolean>(Settings.appGPUMode()==GPUMODE.AUTO);
+  const [disabled, setDisable] = useState<boolean>(Settings.appGPUMode() == GPUMODE.AUTO);
   const refresh = () => {
     setCPUBoost(Settings.appCpuboost());
-    setDisable(Settings.appGPUMode()==GPUMODE.AUTO);
+    setDisable(Settings.appGPUMode() == GPUMODE.AUTO);
   };
   //listen Settings
   useEffect(() => {
-    PluginManager.listenUpdateComponent(ComponentName.CPU_BOOST,[ComponentName.CPU_BOOST,ComponentName.GPU_FREQMODE],(_ComponentName,updateType)=>{
-      switch(updateType){
-        case(UpdateType.UPDATE):{
+    PluginManager.listenUpdateComponent(ComponentName.CPU_BOOST, [ComponentName.CPU_BOOST, ComponentName.GPU_FREQMODE], (_ComponentName, updateType) => {
+      switch (updateType) {
+        case (UpdateType.UPDATE): {
           refresh();
           break;
         }
@@ -40,19 +41,19 @@ const CPUBoostComponent:VFC = () =>{
         />
       </PanelSectionRow>
     </div>
-);
+  );
 }
 
-const CPUSmtComponent:VFC = () =>{
+const CPUSmtComponent: FC = () => {
   const [cpusmt, setCPUSmt] = useState<boolean>(Settings.appSmt());
   const refresh = () => {
     setCPUSmt(Settings.appSmt());
   };
 
   useEffect(() => {
-    PluginManager.listenUpdateComponent(ComponentName.CPU_SMT,[ComponentName.CPU_SMT],(_ComponentName,updateType)=>{
-      switch(updateType){
-        case(UpdateType.UPDATE):{
+    PluginManager.listenUpdateComponent(ComponentName.CPU_SMT, [ComponentName.CPU_SMT], (_ComponentName, updateType) => {
+      switch (updateType) {
+        case (UpdateType.UPDATE): {
           refresh();
           break;
         }
@@ -72,18 +73,18 @@ const CPUSmtComponent:VFC = () =>{
         />
       </PanelSectionRow>
     </div>
-);
+  );
 }
 
-const CPUNumComponent:VFC = () =>{
+const CPUNumComponent: FC = () => {
   const [cpunum, setCPUNum] = useState<number>(Settings.appCpuNum());
   const refresh = () => {
     setCPUNum(Settings.appCpuNum());
   };
   useEffect(() => {
-    PluginManager.listenUpdateComponent(ComponentName.CPU_NUM,[ComponentName.CPU_NUM],(_ComponentName,updateType)=>{
-      switch(updateType){
-        case(UpdateType.UPDATE):{
+    PluginManager.listenUpdateComponent(ComponentName.CPU_NUM, [ComponentName.CPU_NUM], (_ComponentName, updateType) => {
+      switch (updateType) {
+        case (UpdateType.UPDATE): {
           refresh();
           break;
         }
@@ -93,49 +94,131 @@ const CPUNumComponent:VFC = () =>{
   return (
     <div>
       <PanelSectionRow>
-          <SlowSliderField
-            label={localizationManager.getString(localizeStrEnum.CPU_NUM)}
-            description={localizationManager.getString(localizeStrEnum.CPU_NUM_DESC)}
-            value={cpunum}
-            step={1}
-            max={Backend.data.getCpuMaxNum()}
-            min={1}
-            disabled={!Backend.data.HasCpuMaxNum()}
-            showValue={true}
-            onChangeEnd={(value: number) => {
-              Settings.setCpuNum(value);
-            }}
-          />
+        <SlowSliderField
+          label={localizationManager.getString(localizeStrEnum.CPU_NUM)}
+          description={localizationManager.getString(localizeStrEnum.CPU_NUM_DESC)}
+          value={cpunum}
+          step={1}
+          max={Backend.data.getCpuMaxNum()}
+          min={1}
+          disabled={!Backend.data.HasCpuMaxNum()}
+          showValue={true}
+          onChangeEnd={(value: number) => {
+            Settings.setCpuNum(value);
+          }}
+        />
       </PanelSectionRow>
     </div>
-);
+  );
 }
 
-const CPUTDPComponent:VFC = () =>{
+const CPUPerformancePerfComponent: FC = () => {
+  const [supportPerf, _] = useState<boolean>(Backend.data.getSupportCPUMaxPct());
+  const [maxPerf, setMaxPerf] = useState<number>(Settings.appCpuMaxPerfPct());
+
+  const refresh = () => {
+    setMaxPerf(Settings.appCpuMaxPerfPct());
+  }
+
+  useEffect(() => {
+    PluginManager.listenUpdateComponent(ComponentName.CPU_PERFORMANCE,
+      [
+        ComponentName.CPU_PERFORMANCE,
+      ], (_ComponentName, updateType) => {
+        switch (updateType) {
+          case (UpdateType.UPDATE): {
+            refresh();
+            break;
+          }
+        }
+      })
+  }, []);
+
+  return (
+    <>
+      {supportPerf && <PanelSectionRow>
+        <SlowSliderField
+          label={localizationManager.getString(localizeStrEnum.CPU_MAX_PERF)}
+          value={maxPerf}
+          valueSuffix=" %"
+          step={1}
+          max={100}
+          min={10}
+          showValue={true}
+          onChangeEnd={(value: number) => {
+            Settings.setCpuMaxPerfPct(value);
+          }}
+        />
+      </PanelSectionRow>}
+    </>
+  )
+}
+
+const CPUTDPComponent: FC = () => {
   const [tdpEnable, setTDPEnable] = useState<boolean>(Settings.appTDPEnable());
-  const [tdp,setTDP] = useState<number>(Settings.appTDP());
-  const [disabled,setDisable] = useState<boolean>(!Backend.data.HasRyzenadj()||Settings.appGPUMode()==GPUMODE.AUTO);
+  const [tdp, setTDP] = useState<number>(Settings.appTDP());
+  const [disabled, setDisable] = useState<boolean>(Settings.appGPUMode() == GPUMODE.AUTO);
+  const [forceShow, setForceShow] = useState<boolean>(Settings.appForceShowTDP());
+  const [enableCustomTDPRange, setEnableCustomTDPRange] = useState<boolean>(Settings.appEnableCustomTDPRange());
+  const [customTDPRangeMax, setCustomTDPRangeMax] = useState<number>(Settings.appCustomTDPRangeMax());
+  const [customTDPRangeMin, setCustomTDPRangeMin] = useState<number>(Settings.appCustomTDPRangeMin());
+
+  // 隐藏强制显示TDP开关, 并默认显示 TDP 控制组件。新版 Steam 客户端临时方案
+  const [hideForceShowSwitch, _] = useState<boolean>(Backend.data.getForceShowTDP());
+
+  // const minSteamVersion = 1714854927;
+
   const refresh = () => {
     setTDPEnable(Settings.appTDPEnable());
-    setTDP(Settings.appTDP());
-    setDisable(!Backend.data.HasRyzenadj()||Settings.appGPUMode()==GPUMODE.AUTO);
+    setDisable(Settings.appGPUMode() == GPUMODE.AUTO);
+    setEnableCustomTDPRange(Settings.appEnableCustomTDPRange());
+    setCustomTDPRangeMax(Settings.appCustomTDPRangeMax());
+    setCustomTDPRangeMin(Settings.appCustomTDPRangeMin());
+    setForceShow(Settings.appForceShowTDP());
+
+    if (enableCustomTDPRange) {
+      setTDP(Math.min(Settings.appTDP(), customTDPRangeMax));
+    } else {
+      setTDP(Settings.appTDP());
+    }
   };
   useEffect(() => {
-    PluginManager.listenUpdateComponent(ComponentName.CPU_TDP,[ComponentName.CPU_TDP,ComponentName.GPU_FREQMODE],(_ComponentName,updateType)=>{
-      switch(updateType){
-        case(UpdateType.UPDATE):{
-          refresh();
-          break;
+    PluginManager.listenUpdateComponent(ComponentName.CPU_TDP,
+      [
+        ComponentName.CPU_TDP,
+        ComponentName.GPU_FREQMODE,
+        ComponentName.CUSTOM_TDP
+      ], (_ComponentName, updateType) => {
+        switch (updateType) {
+          case (UpdateType.UPDATE): {
+            refresh();
+            break;
+          }
         }
-      }
-    })
+      })
   }, []);
+
+  const _showTdp = !PluginManager.isPatchSuccess(Patch.TDPPatch) || forceShow || hideForceShowSwitch;
+  console.log(`>>>>>>>> Hide Force Show Switch: ${hideForceShowSwitch}, Show TDP: ${_showTdp}`);
+
   return (
-    <div>
-      <PanelSectionRow>
+    <>
+      {!hideForceShowSwitch && <PanelSectionRow>
+        <ToggleField
+          label={localizationManager.getString(localizeStrEnum.FORCE_SHOW_TDP)}
+          description={localizationManager.getString(localizeStrEnum.FORCE_SHOW_TDP_DESC)}
+          checked={forceShow || !PluginManager.isPatchSuccess(Patch.TDPPatch)}
+          onChange={(value) => {
+            Settings.setForceShowTDP(value);
+          }}
+        />
+      </PanelSectionRow>}
+      {_showTdp &&
+        <>
+          <PanelSectionRow>
             <ToggleField
               label={localizationManager.getString(localizeStrEnum.TDP)}
-              description={Backend.data.HasRyzenadj() ? localizationManager.getString(localizeStrEnum.TDP_DESC) : localizationManager.getString(localizeStrEnum.RYZENADJ_NOT_FOUND)}
+              description={localizationManager.getString(localizeStrEnum.TDP_DESC)}
               checked={tdpEnable}
               disabled={disabled}
               onChange={(value) => {
@@ -143,13 +226,14 @@ const CPUTDPComponent:VFC = () =>{
               }}
             />
           </PanelSectionRow>
-          {tdpEnable&&<PanelSectionRow>
+          {tdpEnable && <PanelSectionRow>
             <SlowSliderField
-              label={localizationManager.getString(localizeStrEnum.WATTS)}
+              // label={localizationManager.getString(localizeStrEnum.WATTS)}
               value={tdp}
+              valueSuffix=" W"
               step={1}
-              max={Backend.data.getTDPMax()}
-              min={3}
+              max={enableCustomTDPRange ? customTDPRangeMax : Backend.data.getTDPMax()}
+              min={enableCustomTDPRange ? customTDPRangeMin : 3}
               disabled={disabled}
               showValue={true}
               onChangeEnd={(value: number) => {
@@ -157,24 +241,32 @@ const CPUTDPComponent:VFC = () =>{
               }}
             />
           </PanelSectionRow>}
-    </div>
-);
+        </>}
+    </>
+  );
 }
 
-export const CPUComponent: VFC = () => {
-  const [show,setShow] = useState<boolean>(Settings.ensureEnable());
-  const hide = (ishide:boolean) => {
+
+export const CPUComponent: FC = () => {
+  const [show, setShow] = useState<boolean>(Settings.ensureEnable());
+
+  const [isSpportSMT, setIsSpportSMT] = useState<boolean>(Settings.appIsSupportSMT());
+  useEffect(() => {
+    setIsSpportSMT(Settings.appIsSupportSMT());
+  }, []);
+
+  const hide = (ishide: boolean) => {
     setShow(!ishide);
   };
   //listen Settings
   useEffect(() => {
-    PluginManager.listenUpdateComponent(ComponentName.CPU_ALL,[ComponentName.CPU_ALL],(_ComponentName,updateType)=>{
-      switch(updateType){
-        case(UpdateType.HIDE):{
+    PluginManager.listenUpdateComponent(ComponentName.CPU_ALL, [ComponentName.CPU_ALL], (_ComponentName, updateType) => {
+      switch (updateType) {
+        case (UpdateType.HIDE): {
           hide(true);
           break;
         }
-        case(UpdateType.SHOW):{
+        case (UpdateType.SHOW): {
           hide(false);
           break;
         }
@@ -182,14 +274,16 @@ export const CPUComponent: VFC = () => {
     })
   }, []);
   return (
-        <div>
-          {show&&<PanelSection title="CPU">
-          <CPUBoostComponent/>
-          <CPUSmtComponent/>
-          <CPUNumComponent/>
-          <CPUTDPComponent/>
-        </PanelSection>}
-        </div>
-    );
+    <div>
+      {show && <PanelSection title="CPU">
+        <CPUBoostComponent />
+        {isSpportSMT && <CPUSmtComponent />}
+        <CPUNumComponent />
+        <CPUTDPComponent />
+        <CustomTDPComponent />
+        <CPUPerformancePerfComponent />
+      </PanelSection>}
+    </div>
+  );
 };
 
