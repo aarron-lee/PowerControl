@@ -30,7 +30,7 @@ class GPUAutoFreqManager(threading.Thread):
         self._isRunning = False  # 标记是否正在运行gpu频率优化
         self._gpuManager = gpuManager  # 用来获取和设置gpu频率
 
-        threading.Thread.__init__(self)
+        # threading.Thread.__init__(self)
 
     def Set_gpuFreq(self, freq: int):
         return False
