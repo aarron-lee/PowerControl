@@ -129,6 +129,7 @@ class CPUManager:
             return []
 
     def set_cpuTDP(self, value: int):
+        return False
         if CPU_VENDOR == "GenuineIntel":
             return self.set_cpuTDP_Intel(value)
         elif CPU_VENDOR == "AuthenticAMD":
@@ -164,6 +165,7 @@ class CPUManager:
             logging.error(e, exc_info=True)
 
     def set_cpuTDP_Intel(self, value: int):
+        return False
         try:
             # 遍历 /sys/class/powercap/intel-rapl/*/ 如果 name 是 package-0 则是cpu
             logging.debug("set_cpuTDP_Intel {}".format(value))
@@ -183,6 +185,7 @@ class CPUManager:
             return False
 
     def set_cpuTDP_AMD(self, value: int):
+        return False
         try:
             if value >= 3:
                 tdp = value * 1000
@@ -219,6 +222,7 @@ class CPUManager:
             return False
 
     def set_cpuOnline(self, value: int):
+        return False
         try:
             logging.debug("set_cpuOnline {} {}".format(value, cpu_maxNum))
             global enable_cpu_num
@@ -280,6 +284,7 @@ class CPUManager:
             return False
 
     def set_enable_All(self):
+        return False
         try:
             logging.debug("set_enable_All")
             cpu_path = "/sys/devices/system/cpu/"
@@ -324,6 +329,7 @@ class CPUManager:
         return self.is_support_smt
 
     def set_smt(self, value: bool):
+        return False
         try:
             if not self.get_isSupportSMT():
                 logging.info("set_smt not support")
@@ -338,6 +344,7 @@ class CPUManager:
             return False
 
     def set_cpuBoost(self, value: bool):
+        return False
         boost_path = "/sys/devices/system/cpu/cpufreq/boost"
 
         # amd
@@ -424,6 +431,7 @@ class CPUManager:
             return False
 
     def set_cpuFreq(self, value: int):
+        return False
         try:
             global cpu_nowLimitFreq
             logging.debug(
@@ -496,6 +504,7 @@ class CPUManager:
             file.write("1")
 
     def set_cpu_online(self, cpu_number, online):
+        return False
         if online:
             self.online_cpu(cpu_number)
         else:
@@ -533,6 +542,7 @@ class CPUManager:
             return 0
 
     def set_max_perf_pct(self, value: int):
+        return False
         max_perf_pct_path = "/sys/devices/system/cpu/intel_pstate/max_perf_pct"
         try:
             if value < 10 or value > 100:

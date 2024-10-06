@@ -33,6 +33,7 @@ class GPUAutoFreqManager(threading.Thread):
         threading.Thread.__init__(self)
 
     def Set_gpuFreq(self, freq: int):
+        return False
         try:
             return self._gpuManager.set_gpuFreq(freq, freq)
         except Exception as e:
@@ -40,6 +41,7 @@ class GPUAutoFreqManager(threading.Thread):
             return False
 
     def GPU_enableAutoFreq(self, enable):
+        return False
         # 初始化并开启自动优化线程
         self._gpu_enableAutoFreq = enable
         # 自动频率开启时去开启数据收集，避免不必要的性能浪费
@@ -49,6 +51,7 @@ class GPUAutoFreqManager(threading.Thread):
             self.start()
 
     def optimization_GPUFreq(self):
+        return False
         try:
             gpu_nowFreq = self._gpuManager.gpu_nowFreq[0]
             gpu_autoFreqMin = self._gpuManager.gpu_autoFreqRange[0]
@@ -102,6 +105,7 @@ class GPUAutoFreqManager(threading.Thread):
             logging.error(e)
 
     def run(self):
+        return False
         logging.info("开始自动优化频率:" + self.name)
         adjust_count = 0
         self._isRunning = True
@@ -136,6 +140,7 @@ class GPUFreqNotifier:
         self._gpuManager = manager
 
     def gpuFreq_IN_MODIFY(self, path, mask):
+        return False
         logging.debug(f"gpuFreq_IN_MODIFY path:{path} mask:{mask}")
         # gpu频率文件发生修改时，检查与插件目标是否相同，不同则设置回来
         if self.checkGPUNeedSet(
@@ -146,6 +151,7 @@ class GPUFreqNotifier:
             )
 
     def gpuLevel_IN_MODIFY(self, path, mask):
+        return False
         level_string = open(AMD_GPULEVEL_PATH, "r").read().strip()
         logging.debug(
             f"gpuLevel_IN_MODIFY path:{path} mask:{mask} minFreq:{self._gpuManager.gpu_nowFreq[0]} maxFreq:{self._gpuManager.gpu_nowFreq[1]} level:{level_string}"
@@ -162,6 +168,7 @@ class GPUFreqNotifier:
             )
 
     def checkGPUNeedSet(self, freqMin: int, freqMax: int):
+        return False
         gpu_freqMax = self._gpuManager.gpu_freqRange[1]
         gpu_freqMin = self._gpuManager.gpu_freqRange[0]
         try:
@@ -207,10 +214,12 @@ class GPUFreqNotifier:
             return False
 
     def run(self):
+        return False
         notify.add_watch(AMD_GPUFREQ_PATH, IN_MODIFY, self.gpuFreq_IN_MODIFY)
         notify.add_watch(AMD_GPULEVEL_PATH, IN_MODIFY, self.gpuLevel_IN_MODIFY)
 
     def stop(self):
+        return False
         notify.remove_watch(AMD_GPUFREQ_PATH)
         notify.remove_watch(AMD_GPULEVEL_PATH)
 
@@ -274,6 +283,7 @@ class GPUManager:
             return 0, 0
 
     def set_gpuAuto(self, value: bool):
+        return False
         try:
             logging.debug(f"set_gpuAuto  isAuto: {value}")
             # 判断是否已经有自动频率管理
@@ -296,6 +306,7 @@ class GPUManager:
             return False
 
     def set_gpuAutoFreqRange(self, value1: int, value2: int):
+        return False
         try:
             logging.debug(f"set_gpuAutoFreqRange: [{value1},{value2}]")
             self.gpu_autoFreqRange = [
@@ -307,6 +318,7 @@ class GPUManager:
             return False
 
     def set_gpuFreq(self, minValue: int, maxValue: int):
+        return False
         try:
             logging.info(
                 f"set_gpuFreq: [{minValue}, {maxValue}], gpu_freqRange={self.gpu_freqRange}"
@@ -363,6 +375,7 @@ class GPUManager:
             return False
 
     def set_gpuFreqFix(self, value: int):
+        return False
         try:
             logging.debug(f"set_gpuFixFreq {value}")
             # 有自动频率时关闭它
@@ -376,6 +389,7 @@ class GPUManager:
             return False
 
     def set_gpuFreqRange(self, value: int, value2: int):
+        return False
         try:
             logging.debug(f"set_gpuRangeFreq {value}  {value2}")
             # 有自动频率时关闭它
@@ -388,6 +402,7 @@ class GPUManager:
             return False
 
     def fix_gpuFreqSlider(self):
+        return False
         try:
             # 执行 lsb_release 命令并捕获输出
             result = subprocess.run(
@@ -425,6 +440,7 @@ class GPUManager:
         pass
 
     def fix_gpuFreqSlider_INTEL(self):
+        return False
         steamos_priv_path = "/usr/bin/steamos-polkit-helpers/steamos-priv-write"
         gpu_file_path = ["power_dpm_force_performance_level", "pp_od_clk_voltage"]
         # 读取sh文件内容
@@ -524,6 +540,7 @@ fi""".format(path, new_then_code)
         pass
 
     def fix_gpuFreqSlider_AMD(self):
+        return False
         try:
             steamos_priv_path = "/usr/bin/steamos-polkit-helpers/steamos-priv-write"
             gpu_file_path = ["power_dpm_force_performance_level", "pp_od_clk_voltage"]

@@ -139,6 +139,7 @@ class Plugin:
             return False
 
     async def set_gpuAuto(self, value: bool):
+        return False
         try:
             return gpuManager.set_gpuAuto(value)
         except Exception as e:
@@ -146,6 +147,7 @@ class Plugin:
             return False
 
     async def set_gpuAutoFreqRange(self, min: int, max: int):
+        return False
         try:
             return gpuManager.set_gpuAutoFreqRange(min, max)
         except Exception as e:
@@ -153,6 +155,7 @@ class Plugin:
             return False
 
     async def set_gpuFreq(self, value: int):
+        return False
         try:
             return gpuManager.set_gpuFreqFix(value)
         except Exception as e:
@@ -160,6 +163,7 @@ class Plugin:
             return False
 
     async def set_gpuFreqRange(self, value: int, value2: int):
+        return False
         try:
             return gpuManager.set_gpuFreqRange(value, value2)
         except Exception as e:
@@ -167,6 +171,7 @@ class Plugin:
             return False
 
     async def set_cpuTDP(self, value: int):
+        return False
         try:
             return cpuManager.set_cpuTDP(value)
         except Exception as e:
@@ -174,6 +179,7 @@ class Plugin:
             return False
 
     async def set_cpuOnline(self, value: int):
+        return False
         try:
             return cpuManager.set_cpuOnline(value)
         except Exception as e:
@@ -181,6 +187,7 @@ class Plugin:
             return False
 
     async def set_smt(self, value: bool):
+        return False
         try:
             return cpuManager.set_smt(value)
         except Exception as e:
@@ -188,6 +195,7 @@ class Plugin:
             return False
 
     async def set_cpuBoost(self, value: bool):
+        return False
         try:
             return cpuManager.set_cpuBoost(value)
         except Exception as e:
@@ -195,6 +203,7 @@ class Plugin:
             return False
 
     async def set_cpuFreq(self, value: int):
+        return False
         try:
             return cpuManager.set_cpuFreq(value)
         except Exception as e:
@@ -209,6 +218,7 @@ class Plugin:
             return False
 
     async def fix_gpuFreqSlider(self):
+        return False
         try:
             return gpuManager.fix_gpuFreqSlider()
         except Exception as e:
