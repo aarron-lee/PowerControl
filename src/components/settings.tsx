@@ -249,12 +249,6 @@ const SettingsPerAcStateComponent: FC = () => {
 
 export const SettingsComponent: FC = () => {
   return (
-    <PanelSection>
-      <SettingsEnableComponent />
-    </PanelSection>
-  );
-
-  return (
     <div>
       <PanelSection
         title={localizationManager.getString(localizeStrEnum.TITEL_SETTINGS)}
