@@ -47,7 +47,7 @@ const Content: FC<{}> = ({}) => {
           {/* <CPUComponent />
           <GPUComponent /> */}
           <FANComponent />
-          {/* <MoreComponent /> */}
+          <MoreComponent />
         </div>
       )}
     </div>

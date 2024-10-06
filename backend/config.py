@@ -81,7 +81,7 @@ try:
 except Exception as e:
     logging.error(f"设备信息配置异常|{e}")
 
-API_URL = "https://api.github.com/repos/mengmeet/PowerControl/releases/latest"
+API_URL = "https://api.github.com/repos/aarron-lee/PowerControl/releases/latest"
 
 CONFIG_KEY = "PowerControl"
 
