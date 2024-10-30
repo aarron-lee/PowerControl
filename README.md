@@ -2,6 +2,8 @@
 
 Powercontrol fork of with fan controls only
 
+![screenshot](./assets/screenshot.jpg)
+
 # Quick Install
 
 ```
