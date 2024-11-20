@@ -1,6 +1,6 @@
 # PowerControl Fork
 
-Powercontrol fork of with fan controls only
+Powercontrol fork with fan controls only
 
 ![screenshot](./assets/screenshot.jpg)
 
