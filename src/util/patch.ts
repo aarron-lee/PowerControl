@@ -198,17 +198,17 @@ class TDPPatch {
             patchCallBack(false);
           }
           return ret;
-        }
+        },
       );
 
       //挂起结束时修改一次TDP
-      this.suspendEndHook = SteamClient.System.RegisterForOnResumeFromSuspend(
-        async () => {
-          setTimeout(() => {
-            this.applyTDP();
-          }, 1000);
-        }
-      );
+      // this.suspendEndHook = SteamClient.System.RegisterForOnResumeFromSuspend(
+      //   async () => {
+      //     setTimeout(() => {
+      //       this.applyTDP();
+      //     }, 1000);
+      //   }
+      // );
 
       //状态改变时tdp发生变化，则应用一次tdp
       this.stateChangeHook = SteamClient.System.Perf.RegisterForStateChanges(
@@ -227,10 +227,10 @@ class TDPPatch {
                 this.perfStore?.msgSettingsPerApp?.tdp_limit
             ) {
               console.log(
-                `QAM tdp limit change: ${this.last_tdp_limit} -> ${this.perfStore?.msgSettingsPerApp?.tdp_limit}`
+                `QAM tdp limit change: ${this.last_tdp_limit} -> ${this.perfStore?.msgSettingsPerApp?.tdp_limit}`,
               );
               console.log(
-                `QAM tdp limit enable change: ${this.last_is_tdp_limit_enabled} -> ${this.perfStore?.msgSettingsPerApp?.is_tdp_limit_enabled}`
+                `QAM tdp limit enable change: ${this.last_is_tdp_limit_enabled} -> ${this.perfStore?.msgSettingsPerApp?.is_tdp_limit_enabled}`,
               );
 
               if (
@@ -238,16 +238,16 @@ class TDPPatch {
                 this.perfStore?.msgSettingsPerApp?.is_tdp_limit_enabled === true
               ) {
                 console.error(
-                  "While GPU mode is AUTO, TDP limit must be disabled"
+                  "While GPU mode is AUTO, TDP limit must be disabled",
                 );
 
                 const notificationText = `${localizationManager.getString(
                   localizeStrEnum.AUTO_FREQ_TDP_NOTIF,
                   {
                     mode: localizationManager.getString(
-                      localizeStrEnum.AUTO_FREQ
+                      localizeStrEnum.AUTO_FREQ,
                     ),
-                  }
+                  },
                 )}`;
                 SteamUtils.simpleToast(notificationText, 3000);
 
@@ -256,7 +256,7 @@ class TDPPatch {
                 // console.log("saveTDP from qam listener");
                 Settings.saveTDPFromQAM(
                   this.perfStore?.msgSettingsPerApp?.tdp_limit ?? 15,
-                  this.perfStore?.msgSettingsPerApp?.is_tdp_limit_enabled
+                  this.perfStore?.msgSettingsPerApp?.is_tdp_limit_enabled,
                 );
               }
 
@@ -283,7 +283,7 @@ class TDPPatch {
               }
             }
           }, 500);
-        }
+        },
       );
 
       //某些机型充电状态改变时tdp会重置，应用一次tdp
@@ -306,7 +306,7 @@ class TDPPatch {
                 this.applyTDP();
               }, 500);
             }
-          }
+          },
         );
       patchCallBack(true);
     } catch (e) {
@@ -347,7 +347,7 @@ class GPUPerformancePatch {
       this.perfStore?.msgSettingsPerApp?.gpu_performance_level
     ) {
       setGpuFreq(
-        this.perfStore.msgSettingsPerApp.gpu_performance_manual_mhz ?? 0
+        this.perfStore.msgSettingsPerApp.gpu_performance_manual_mhz ?? 0,
       );
     } else {
       setGpuFreq(0);
@@ -385,7 +385,7 @@ class GPUPerformancePatch {
             patchCallBack(false);
           }
           return ret;
-        }
+        },
       );
       //状态改变时gpu频率发生变化则修改gpu频率
       this.stateChangeHook = SteamClient.System.Perf.RegisterForStateChanges(
@@ -407,7 +407,7 @@ class GPUPerformancePatch {
               this.applyGPUFreq();
             }
           }, 300);
-        }
+        },
       );
       Settings.addGpuModeEventListener(this.onGpuModeChange);
       patchCallBack(true);

@@ -22,7 +22,7 @@ import { Timeout } from "./timeout";
 type ActiveAppChangedHandler = (newAppId: string, oldAppId: string) => void;
 type ComponentUpdateHandler = (
   componentsName: ComponentName,
-  updateType: UpdateType
+  updateType: UpdateType,
 ) => void;
 type UnregisterFn = () => void;
 export const DEFAULT_APP = "0";
@@ -84,11 +84,11 @@ export class ACStateManager {
         PluginManager.updateAllComponent(UpdateType.UPDATE);
         if (Settings.ensureEnable()) {
           console.log(
-            `>>>>>>>>>>>> applySettings with Listrning batteryStateChange ${batteryStateChange.eACState}`
+            `>>>>>>>>>>>> applySettings with Listrning batteryStateChange ${batteryStateChange.eACState}`,
           );
           Backend.applySettings(APPLYTYPE.SET_ALL);
         }
-      }
+      },
     );
   }
 
@@ -158,7 +158,7 @@ export class FanControl {
           Backend.applySettings(APPLYTYPE.SET_FANMODE);
         }
       }
-      
+
     }
   }*/
 
@@ -194,26 +194,26 @@ export class FanControl {
               return a.temperature == b.temperature
                 ? a.fanRPMpercent!! - b.fanRPMpercent!!
                 : a.temperature!! - b.temperature!!;
-            }
+            },
           );
           //每俩点判断是否在这俩点之间
           var lineStart = new FanPosition(
             FanPosition.tempMin,
-            FanPosition.fanMin
+            FanPosition.fanMin,
           );
           if (curvePoints?.length!! > 0) {
             //初始点到第一个点
             var lineEnd = curvePoints!![0];
             if (
               FanControl.fanInfo[index].nowPoint.temperature!! >
-              lineStart.temperature!! &&
+                lineStart.temperature!! &&
               FanControl.fanInfo[index].nowPoint.temperature!! <=
-              lineEnd.temperature!!
+                lineEnd.temperature!!
             ) {
               FanControl.fanInfo[index].setPoint = calPointInLine(
                 lineStart,
                 lineEnd,
-                FanControl.fanInfo[index].nowPoint.temperature!!
+                FanControl.fanInfo[index].nowPoint.temperature!!,
               )!!;
             }
 
@@ -226,14 +226,14 @@ export class FanControl {
                   : curvePoints!![pointIndex + 1];
               if (
                 FanControl.fanInfo[index].nowPoint.temperature!! >
-                lineStart.temperature!! &&
+                  lineStart.temperature!! &&
                 FanControl.fanInfo[index].nowPoint.temperature!! <=
-                lineEnd.temperature!!
+                  lineEnd.temperature!!
               ) {
                 FanControl.fanInfo[index].setPoint = calPointInLine(
                   lineStart,
                   lineEnd,
-                  FanControl.fanInfo[index].nowPoint.temperature!!
+                  FanControl.fanInfo[index].nowPoint.temperature!!,
                 )!!;
                 return;
               }
@@ -241,18 +241,18 @@ export class FanControl {
           } else {
             var lineEnd = new FanPosition(
               FanPosition.tempMax,
-              FanPosition.fanMax
+              FanPosition.fanMax,
             );
             if (
               FanControl.fanInfo[index].nowPoint.temperature!! >
-              lineStart.temperature!! &&
+                lineStart.temperature!! &&
               FanControl.fanInfo[index].nowPoint.temperature!! <=
-              lineEnd.temperature!!
+                lineEnd.temperature!!
             ) {
               FanControl.fanInfo[index].setPoint = calPointInLine(
                 lineStart,
                 lineEnd,
-                FanControl.fanInfo[index].nowPoint.temperature!!
+                FanControl.fanInfo[index].nowPoint.temperature!!,
               )!!;
               break;
             }
@@ -277,7 +277,7 @@ export class FanControl {
       if (
         Math.abs(
           (FanControl.fanInfo[index].lastSetPoint.fanRPMpercent ?? 0) -
-          (FanControl.fanInfo[index].setPoint.fanRPMpercent ?? 0)
+            (FanControl.fanInfo[index].setPoint.fanRPMpercent ?? 0),
         ) >= 3
       ) {
         FanControl.fanInfo[index].lastSetPoint.fanRPMpercent =
@@ -331,7 +331,7 @@ export class PluginManager {
         await Timeout.withTimeout(
           () => localizationManager.init(),
           1000,
-          "Localization initialization timeout"
+          "Localization initialization timeout",
         );
         Logger.info("Localization initialization complete");
       } catch (e: any) {
@@ -343,7 +343,7 @@ export class PluginManager {
         await Timeout.withTimeout(
           () => Settings.loadSettings(),
           3000,
-          "Settings loading timeout"
+          "Settings loading timeout",
         );
         Logger.info("Settings loaded");
       } catch (e: any) {
@@ -355,7 +355,7 @@ export class PluginManager {
         await Timeout.withTimeout(
           () => Backend.init(),
           3000,
-          "Backend initialization timeout"
+          "Backend initialization timeout",
         );
         Logger.info("Backend initialization complete");
       } catch (e: any) {
@@ -388,7 +388,7 @@ export class PluginManager {
         await Timeout.withTimeout(
           () => QAMPatch.init(),
           5000,
-          "QAM patch initialization timeout"
+          "QAM patch initialization timeout",
         );
         Logger.info("System state initialization complete");
       } catch (e: any) {
@@ -400,7 +400,7 @@ export class PluginManager {
         await Timeout.withTimeout(
           () => Backend.applySettings(APPLYTYPE.SET_ALL),
           10000,
-          "Initial settings application timeout"
+          "Initial settings application timeout",
         );
         Logger.info("Initial settings application complete");
       } catch (e: any) {
@@ -410,24 +410,24 @@ export class PluginManager {
       }
 
       // 注册休眠恢复监听
-      PluginManager.suspendEndHook =
-        SteamClient.System.RegisterForOnResumeFromSuspend(async () => {
-          try {
-            await new Promise((resolve) => setTimeout(resolve, 10000));
-            if (Settings.ensureEnable()) {
-              console.log("throwSuspendEvt");
-              await receiveSuspendEvent();
-            }
-            await Timeout.withTimeout(
-              () => Backend.applySettings(APPLYTYPE.SET_ALL),
-              3000,
-              "Settings application after suspend timeout"
-            );
-          } catch (e) {
-            Logger.error(`Error in suspend resume handler: ${e}`);
-          }
-        });
-      Logger.info("Suspend resume handler registered");
+      // PluginManager.suspendEndHook =
+      //   SteamClient.System.RegisterForOnResumeFromSuspend(async () => {
+      //     try {
+      //       await new Promise((resolve) => setTimeout(resolve, 10000));
+      //       if (Settings.ensureEnable()) {
+      //         console.log("throwSuspendEvt");
+      //         await receiveSuspendEvent();
+      //       }
+      //       await Timeout.withTimeout(
+      //         () => Backend.applySettings(APPLYTYPE.SET_ALL),
+      //         3000,
+      //         "Settings application after suspend timeout"
+      //       );
+      //     } catch (e) {
+      //       Logger.error(`Error in suspend resume handler: ${e}`);
+      //     }
+      //   });
+      // Logger.info("Suspend resume handler registered");
 
       // 监听后端事件
       addEventListener("QAM_setTDP", (tdp: number) => {
@@ -520,7 +520,7 @@ export class PluginManager {
   static listenUpdateComponent(
     whoListen: ComponentName,
     lisComponentNames: ComponentName[],
-    lisfn: ComponentUpdateHandler
+    lisfn: ComponentUpdateHandler,
   ) {
     lisComponentNames?.forEach((lisComponentName) => {
       if (
