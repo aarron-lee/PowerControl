@@ -1,6 +1,6 @@
 {
   "name": "power_control",
-  "version": "3.3.0",
+  "version": "v3.3.0-beta-client-fix",
   "description": "PowerControl plugin.",
   "type": "module",
   "scripts": {
