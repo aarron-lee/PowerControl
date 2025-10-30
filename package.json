@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "decky-frontend-lib": "^3.24.5",
+    "mobx": "^6.15.0",
     "react-icons": "^4.4.0",
     "typescript-json-serializer": "^4.2.0"
   },
